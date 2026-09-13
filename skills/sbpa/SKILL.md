@@ -1,290 +1,135 @@
 ---
 name: sbpa
-description: Exhaustively recover, model, compare, and audit software behavior for rewrites, migrations, refactors, legacy replacement, compatibility work, or specification recovery. Use when preserving behavior matters more than summarizing code.
+description: Recover, model, compare, and audit software behavior for rewrites, migrations, refactors, legacy replacement, compatibility work, or specification recovery. Use when behavioral preservation and auditable coverage matter more than code summarization.
 ---
 
 # SBPA — Software Behavior Preservation Auditor
 
-## Purpose
+## Objective
 
-Recover and preserve software behavior from evidence.
-
-SBPA is domain-independent. Do not assume a language, framework, architecture, application type, interaction model, persistence model, deployment model, or business domain before inspecting evidence. The repository defines its own taxonomy.
-
-## Governing objective
-
-Build and maintain this auditable chain:
+Build an auditable preservation chain:
 
 `SOURCE EVIDENCE -> SOFTWARE ELEMENT -> ATOMIC BEHAVIOR -> REQUIREMENT -> TARGET IMPLEMENTATION -> VERIFICATION EVIDENCE`
 
-Any relevant source behavior that cannot be traced through the chain remains unresolved.
+SBPA is domain- and language-independent. The repository defines its taxonomy. The behavior model is the source of truth; PRDs and reports are derived views.
 
-The behavior model is the source of truth. PRDs, feature lists, migration reports, state views, and gap reports are derived views. Never treat a prose summary as a substitute for the behavior model.
+## Mandatory protocol
 
-## Mandatory invariants
+1. **Evidence before interpretation.** Inspect evidence before inventing categories. Classify conclusions only as `CONFIRMED`, `INFERRED`, `CONFLICTED`, or `UNKNOWN`.
+2. **Atomic behavior.** Split contracts whenever trigger, condition, input, branch, transition, output, effect, failure, ordering, timing, concurrency, persistence, or observable result differs.
+3. **No importance filtering.** Minor, internal, repetitive, legacy, rare, defensive, accidental, and undocumented evidence is not permission to omit it.
+4. **Explicit uncertainty.** Unknowns and conflicts remain explicit until resolved with evidence.
+5. **Semantic equivalence.** Structural similarity does not establish behavioral equivalence. `EXACT` is an evidence-gated claim, not a confidence label.
+6. **Measured completeness.** Never infer completeness from prose volume or apparent thoroughness.
+7. **No compression of unseen work.** Never hide unreviewed behavior behind `etc.`, `similar cases`, `standard handling`, `same as above`, or equivalent language.
+8. **No target bias.** Recover source semantics independently before comparing the target.
 
-### 1. Evidence before interpretation
+## Machine verification layer
 
-Inspect evidence before inventing categories. Names, comments, docs, conventions, target code, and prior expectations may guide investigation but do not by themselves establish behavior.
+Read `references/engine.md` before non-trivial audits. When an SBPA engine is available, use its inventory and validation results for mechanically decidable facts instead of inventing counts in prose.
 
-Classify conclusions as exactly one of:
+Keep these coverage dimensions separate:
 
-- `CONFIRMED` — directly supported by inspected evidence.
-- `INFERRED` — strongly implied but not directly established.
-- `CONFLICTED` — inspected evidence disagrees.
-- `UNKNOWN` — evidence is insufficient.
+- structural coverage
+- evidence coverage
+- behavioral coverage
+- verification coverage
+- target equivalence coverage
 
-Never silently promote `INFERRED`, `CONFLICTED`, or `UNKNOWN` to `CONFIRMED`.
+Never report a single percentage as proof of total behavioral completeness.
 
-### 2. Atomic behavior, not feature compression
-
-Separate behavior whenever trigger, precondition, accepted input, rejected input, branch, transition, output, side effect, failure semantics, ordering, timing, concurrency, persistence, or observable result differs.
-
-One behavior record should represent one independently verifiable behavioral contract. Do not replace multiple contracts with a high-level feature statement.
-
-### 3. No importance filtering
-
-Do not omit evidence because it appears minor, internal, repetitive, legacy, rare, defensive, accidental, inconvenient, undocumented, or non-critical.
-
-Record it, or explicitly classify why it has no behavioral effect.
-
-### 4. Explicit uncertainty
-
-If behavior cannot be established, create or update an Unknown record. If evidence disagrees, create or update a Conflict record. Never guess to close coverage.
-
-### 5. Behavioral equivalence over structural similarity
-
-A target implementation may differ structurally. Compare semantics, not code shape.
-
-A target behavior is `EXACT` only when evidence demonstrates equivalence across every relevant dimension discovered for that behavior. Missing evidence means `UNKNOWN`, not `EXACT`.
-
-### 6. Completeness is measured
-
-Never claim completeness because the analysis looks thorough. Completeness is a coverage-ledger state.
-
-Do not declare analysis complete while unexplained evidence, relevant elements, meaningful branches, verification expectations, or structural coverage gaps remain unresolved.
+A changed source/target artifact invalidates dependent conclusions until re-reviewed. Stable IDs survive; stale evidence does not remain valid merely because its ID is stable.
 
 ## Output language
 
-SBPA supports configurable human-readable output language without changing machine-stable audit semantics.
+Read `references/output-language.md`. Supported baseline values are `auto`, `zh-CN`, and `en`. Human-readable prose may be localized. Stable IDs, schema keys, status values, paths, source identifiers, evidence references, error codes, fingerprints, and semantics-bearing literals remain canonical.
 
-Read `references/output-language.md` before producing or updating audit artifacts.
+Persist the chosen language in audit scope. Changing language must never change identity or traceability.
 
-The default is:
+## Durable project state
 
-```yaml
-output_language: auto
-technical_terms: preserve
-source_identifiers: preserve
-```
+For non-trivial work maintain `.sbpa/` in the audited repository. Read `references/artifacts.md` before writing artifacts and `references/behavior-model.md` before writing behavior records.
 
-`auto` follows the user's primary language. At minimum, support `zh-CN` and `en`. An explicit user language request overrides `auto` and must be persisted in `.sbpa/scope.md` for subsequent batches.
+If prior state exists, continue from it. Preserve stable IDs and unresolved findings. Do not renumber records for presentation.
 
-Only human-readable prose is localized. Stable IDs, canonical schema keys, canonical status values, file paths, source identifiers, evidence references, error codes, protocol values, and other semantics-bearing literals must remain unchanged unless the source evidence itself changes.
-
-Changing output language must never break identity, traceability, comparison, or continuation of an existing audit.
-
-## Project state
-
-For non-trivial work, maintain durable audit state under `.sbpa/` in the repository being analyzed.
-
-Read `references/artifacts.md` before creating or updating audit artifacts.
-
-If `.sbpa/ledger.md` already exists, continue from it. Preserve stable IDs. Never renumber existing IDs to make output prettier.
-
-Do not overwrite unresolved findings merely because a later pass has less context.
-
-## Required workflow
+## Workflow
 
 ### Phase 0 — Scope
 
-Establish the source system, target system if any, analysis root, explicit exclusions if any, available evidence, and output language.
-
-Never invent exclusions.
-
-If the repository is too large for one context, define an incremental traversal order and record it in the ledger.
+Establish source, target if any, analysis root, explicit exclusions, available evidence, output language, and revision anchors when available. Never invent exclusions.
 
 ### Phase 1 — Evidence inventory
 
-Enumerate analyzable artifacts before making a completeness claim.
+Enumerate analyzable artifacts from the actual analysis root. Prefer machine-generated inventory when available. Every evidence item resolves to `UNREVIEWED`, `REVIEWED`, `NOT_APPLICABLE`, or `BLOCKED`; the latter two require explanations.
 
-Evidence can include any artifact capable of establishing behavior. Do not limit discovery to source code.
+### Phase 2 — Element discovery
 
-Each evidence item must end in one state:
+Discover native software constructs capable of behavior. Do not impose a fixed language taxonomy. Optional extractors may mechanically discover candidates but never decide semantics.
 
-- `UNREVIEWED`
-- `REVIEWED`
-- `NOT_APPLICABLE`
-- `BLOCKED`
-
-`NOT_APPLICABLE` and `BLOCKED` require explanations.
-
-### Phase 2 — Software element discovery
-
-Discover identifiable constructs capable of contributing to behavior using the native abstractions of the repository.
-
-Do not impose a fixed language-specific element taxonomy.
-
-Every relevant element must resolve to one of:
-
-- `BEHAVIOR_MAPPED`
-- `NO_BEHAVIORAL_EFFECT`
-- `UNKNOWN`
-
-`NO_BEHAVIORAL_EFFECT` requires justification.
+Every relevant element resolves to `BEHAVIOR_MAPPED`, `NO_BEHAVIORAL_EFFECT` with justification, or `UNKNOWN`.
 
 ### Phase 3 — Atomic behavior extraction
 
-Create stable behavior IDs such as `B-000001`.
+Create stable IDs such as `B-000001` and use the canonical behavior model. Record only dimensions supported by evidence. Fingerprints may aid duplicate/split/merge detection but never replace stable IDs.
 
-For every behavior, capture all dimensions supported by evidence. Use the canonical schema in `references/behavior-model.md`.
+### Phase 4 — Repository-derived inventories
 
-Do not fabricate values for absent dimensions. Use `N/A` only when non-applicability is established.
-
-### Phase 4 — Repository-derived cross-cutting inventories
-
-Create only inventories supported by discovered evidence.
-
-Possible discovery lenses include state, decisions, data contracts, effects, failures, interaction surfaces, temporal semantics, concurrency semantics, configuration semantics, and verification evidence. These are lenses, not assumptions that such concepts must exist.
-
-Extend the taxonomy if repository evidence reveals another behavior-bearing class.
+Create cross-cutting inventories only when evidence supports them. Possible lenses include state, decisions, data contracts, effects, failures, interaction surfaces, temporal/concurrency semantics, configuration, and verification. Extend the taxonomy when evidence reveals another behavior-bearing class.
 
 ### Phase 5 — Requirement projection
 
-Project confirmed behaviors, and explicitly labeled inferred behaviors when useful, into implementation requirements.
-
-Every requirement must retain backlinks to behavior IDs and source evidence.
-
-Do not author independent requirements that cannot be traced to evidence unless the user explicitly asks for new product behavior. Keep new requirements separate from recovered behavior.
+Project recovered behaviors into requirements with backlinks to Behavior IDs and source evidence. Keep newly requested product behavior separate from recovered source behavior.
 
 ### Phase 6 — Target mapping
 
-If a target implementation exists, analyze source semantics independently first, then inspect the target.
+After source semantics are independently established, map each behavior to exactly one of `EXACT`, `PARTIAL`, `MISSING`, `DIFFERENT`, `UNKNOWN`, `NOT_APPLICABLE`, or `INTENTIONALLY_CHANGED`.
 
-Map each source behavior to exactly one primary target status:
-
-- `EXACT`
-- `PARTIAL`
-- `MISSING`
-- `DIFFERENT`
-- `UNKNOWN`
-- `NOT_APPLICABLE`
-- `INTENTIONALLY_CHANGED`
-
-`INTENTIONALLY_CHANGED` requires explicit evidence of an approved intended change. Without that evidence use `DIFFERENT`, `MISSING`, or `UNKNOWN` as appropriate.
+`INTENTIONALLY_CHANGED` requires explicit approval evidence. `EXACT` requires sufficient source, target, and verification evidence across every relevant discovered dimension; otherwise choose a more accurate status.
 
 ### Phase 7 — Traceability
 
-Maintain a primary traceability row for every discovered behavior.
-
-Each row must connect behavior ID, source evidence, requirement, target evidence if any, target status, and verification evidence if any.
-
-A behavior may cite multiple evidence items but must not disappear inside another row.
+Maintain exactly one primary traceability row per discovered Behavior ID connecting source evidence, requirement, target evidence, target status, and verification evidence.
 
 ### Phase 8 — Reverse coverage audit
 
-Audit in reverse, not only forward.
+Audit both directions: evidence -> element -> behavior; element -> behavior; behavior -> requirement; requirement -> target when applicable; verification evidence -> behavior. Also audit every repository-derived inventory member back to behavior coverage. Broken chains create gaps.
 
-At minimum verify:
+### Phase 9 — Gap / Unknown / Conflict registers
 
-- evidence -> element -> behavior
-- element -> behavior
-- behavior -> requirement
-- requirement -> target, when a target exists
-- verification evidence -> behavior
+Use stable `G-000001`, `U-000001`, and `C-000001` IDs. Resolve only with evidence; preserve resolution history where practical.
 
-For every repository-derived inventory, also audit each meaningful member back to behavior coverage. Any broken chain creates a coverage gap.
+### Phase 10 — Verification projection
 
-### Phase 9 — Gap, Unknown, and Conflict registers
+When historical verification is insufficient, derive acceptance specifications from behavior contracts. Clearly mark generated acceptance specifications as generated verification, never as recovered historical evidence.
 
-Create stable IDs:
+### Phase 11 — Completion decision
 
-- gaps: `G-000001`
-- unknowns: `U-000001`
-- conflicts: `C-000001`
+Read `references/completion.md` and apply its gate mechanically. Run machine validation when available. If the gate fails, state `ANALYSIS INCOMPLETE`, unresolved counts, stale evidence, and the next target.
 
-Never delete unresolved records merely to improve completion metrics. Resolve them only with evidence and preserve resolution history where practical.
+## Decision coverage
 
-### Phase 10 — Completion decision
+Whenever evidence selects among materially different outcomes, enumerate meaningful alternatives. Each must map to an existing/new Behavior ID or `NO_BEHAVIORAL_EFFECT` with justification. Syntax is repository-specific; do not search only for a hard-coded keyword list.
 
-Read `references/completion.md` and apply the completion gate mechanically.
+## Verification evidence
 
-If the gate is not satisfied, state `ANALYSIS INCOMPLETE` and report unresolved counts and the next analysis target.
+Executable expectations are evidence. Map independently meaningful tests, assertions, snapshots, fixtures, contracts, validation scripts, examples, or equivalent artifacts to behaviors. Conflicts remain `CONFLICTED`; no evidence class is automatically authoritative.
 
-## Decision coverage rule
+## Incremental audits
 
-Whenever inspected evidence contains a construct that selects among materially different outcomes, enumerate the meaningful alternatives and map each to behavior coverage.
+Context limits are not permission to summarize unseen evidence. Analyze in bounded batches, persist completed ranges and unresolved IDs, and continue from the ledger. If repository revisions change, invalidate and re-review affected evidence/behaviors before retaining equivalence claims.
 
-The syntax is repository-specific. Do not search only for a fixed list of language keywords.
+## Progress reporting
 
-A meaningful alternative must resolve to an existing Behavior ID, a newly created Behavior ID, or `NO_BEHAVIORAL_EFFECT` with justification. Unmapped meaningful alternatives are coverage gaps.
+Report coverage dimensions separately plus open gaps, unknowns, conflicts, stale evidence, and next analysis target. Human-readable labels follow output language; canonical values do not.
 
-## Verification rule
+## Acceptance question
 
-Executable expectations are evidence, not decoration.
+For every discovered source behavior answer:
 
-Where tests, assertions, snapshots, fixtures, validation scripts, examples, contracts, or equivalent verification artifacts encode behavior, map independently meaningful expectations to Behavior IDs.
+> What evidence proves it existed, what atomic contract represents it, what requirement projects it, where is it implemented in the target, and what evidence proves preservation?
 
-If verification evidence conflicts with implementation evidence, record `CONFLICTED`; do not silently choose one.
+If an applicable link is missing, the behavior is not fully migrated.
 
-## Source conflict rule
+## Priority
 
-Documentation is evidence, not authority. Tests are evidence, not automatically authority. Runtime code is evidence, not automatically the intended contract.
-
-When evidence sources disagree, preserve the disagreement in the Conflict register with affected Behavior IDs and a verification path.
-
-## Anti-compression rule
-
-Never conceal unreviewed or unenumerated behavior behind language equivalent to `etc.`, `and so on`, `similar cases`, `standard handling`, `usual behavior`, `remaining cases`, `miscellaneous`, or `same as above`.
-
-Enumerate the items or mark them not yet analyzed.
-
-## Target-bias rule
-
-Never infer source intent from what the target implementation currently does.
-
-Source discovery and source behavior extraction must be independently defensible before target comparison.
-
-## Context-limit rule
-
-Context limits are not permission to summarize unseen evidence.
-
-For large repositories:
-
-1. analyze in bounded batches;
-2. persist completed Evidence IDs, Element IDs, Behavior IDs, unresolved Gap/Unknown/Conflict IDs, current coverage metrics, and the next analysis range;
-3. continue from the ledger in the next batch;
-4. preserve stable IDs across batches.
-
-## Required progress report
-
-At the end of each analysis batch, report at least:
-
-- Evidence: total / reviewed / unreviewed / blocked / not applicable
-- Elements: total / behavior mapped / no behavioral effect / unknown
-- Behaviors: total / confirmed / inferred / conflicted / unknown
-- Target mapping, if applicable: exact / partial / missing / different / unknown / intentionally changed / not applicable
-- Open gaps
-- Open unknowns
-- Open conflicts
-- Next analysis target
-
-Render human-readable labels and prose according to `output_language`, while preserving canonical machine values.
-
-## Final acceptance question
-
-For every behavior discovered in the source system, be able to answer:
-
-> What evidence proves this behavior existed, what behavior contract represents it, what requirement projects it, where is it implemented in the target system, and what evidence proves the target preserves it?
-
-If any applicable part cannot be answered, that behavior is not fully migrated.
-
-## Output priority
-
-Optimize for:
-
-1. coverage over prose,
-2. evidence over confidence,
-3. traceability over summarization,
-4. explicit unknowns over assumptions,
-5. durable machine-auditable state over impressive narrative output.
+Coverage over prose. Evidence over confidence. Traceability over summarization. Explicit unknowns over assumptions. Machine-auditable state over impressive narrative output.

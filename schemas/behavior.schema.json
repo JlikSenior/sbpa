@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JlikSenior/sbpa/schemas/behavior.schema.json",
+  "title": "SBPA Atomic Behavior",
+  "type": "object",
+  "required": ["id", "title", "evidence_class", "source_evidence", "contract"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^B-[0-9]{6}$"},
+    "title": {"type": "string", "minLength": 1},
+    "description": {"type": "string"},
+    "evidence_class": {"enum": ["CONFIRMED", "INFERRED", "CONFLICTED", "UNKNOWN"]},
+    "source_evidence": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^E-[0-9]{6}$"}},
+    "contract": {
+      "type": "object",
+      "properties": {
+        "trigger": {}, "preconditions": {}, "inputs": {}, "validation": {}, "decision_logic": {},
+        "state_before": {}, "transition": {}, "state_after": {}, "outputs": {}, "observable_effects": {},
+        "side_effects": {}, "persistence": {}, "temporal": {}, "ordering": {}, "concurrency": {},
+        "failure": {}, "recovery": {}, "edge_conditions": {}, "external_dependencies": {}
+      },
+      "additionalProperties": false
+    },
+    "related_tests": {"type": "array", "items": {"type": "string"}},
+    "related_behaviors": {"type": "array", "items": {"type": "string", "pattern": "^B-[0-9]{6}$"}},
+    "fingerprint": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": true
+}
