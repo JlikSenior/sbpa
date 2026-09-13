@@ -60,6 +60,38 @@ Use SBPA to compare the source implementation with the rewrite and produce a tra
 Use SBPA to continue the previous audit from the existing .sbpa ledger.
 ```
 
+### Output language
+
+SBPA can produce human-readable artifacts in Chinese or English while keeping IDs, source symbols, schema keys, and canonical status values stable.
+
+Chinese:
+
+```text
+用中文执行 SBPA，完整恢复这个仓库的行为规格。
+```
+
+or:
+
+```text
+Use SBPA in Chinese to audit this repository.
+```
+
+English:
+
+```text
+Use SBPA in English to audit this repository.
+```
+
+Default behavior is `auto`, which follows the user's primary language. For non-trivial audits, the selected language is persisted in `.sbpa/scope.md`:
+
+```yaml
+output_language: auto   # auto | zh-CN | en
+technical_terms: preserve
+source_identifiers: preserve
+```
+
+Changing language affects human-readable prose only. Stable IDs such as `B-000001`, canonical statuses such as `CONFIRMED` and `EXACT`, file paths, source identifiers, and evidence references remain unchanged so an audit can switch language without breaking traceability.
+
 SBPA maintains analysis state under `.sbpa/` in the audited repository so large codebases can be processed incrementally without silently compressing unreviewed code.
 
 ## Portable package
