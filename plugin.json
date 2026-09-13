@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "sbpa",
+  "description": "Domain-independent software behavior preservation auditing for rewrites, migrations, refactors, and specification recovery.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "keywords": [
+    "agent-skill",
+    "software-archaeology",
+    "behavior-preservation",
+    "migration-audit",
+    "reverse-engineering",
+    "traceability"
+  ]
+}
