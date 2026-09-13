@@ -6,7 +6,10 @@ required=[
  ROOT/'plugin.json',ROOT/'skills/sbpa/SKILL.md',ROOT/'skills/sbpa/references/behavior-model.md',
  ROOT/'skills/sbpa/references/artifacts.md',ROOT/'skills/sbpa/references/completion.md',
  ROOT/'skills/sbpa/references/output-language.md',ROOT/'skills/sbpa/references/engine.md',
- ROOT/'schemas/behavior.schema.json',ROOT/'install.sh',ROOT/'install.ps1']
+ ROOT/'schemas/behavior.schema.json',ROOT/'engine/sbpa.py',ROOT/'engine/sbpa_engine/__init__.py',
+ ROOT/'engine/sbpa_engine/common.py',ROOT/'engine/sbpa_engine/state.py',
+ ROOT/'engine/sbpa_engine/inventory.py',ROOT/'engine/sbpa_engine/validator.py',
+ ROOT/'tests/test_engine.py',ROOT/'install.sh',ROOT/'install.ps1']
 for p in required:
  if not p.is_file():errors.append('missing required file: '+str(p.relative_to(ROOT)))
 try:
