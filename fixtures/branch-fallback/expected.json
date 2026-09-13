@@ -1,0 +1,15 @@
+{
+  "fixture": "branch-fallback",
+  "expected_behaviors": [
+    "None returns fallback",
+    "empty string is preserved as empty string",
+    "parse failure returns fallback",
+    "negative numeric input clamps to zero",
+    "non-negative numeric input returns parsed integer"
+  ],
+  "minimum_behavior_count": 5,
+  "forbidden_compressions": [
+    "input validation",
+    "fallback handling"
+  ]
+}
