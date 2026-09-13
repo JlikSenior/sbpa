@@ -14,27 +14,30 @@ if ($Global) {
   $Dest = Join-Path $resolved ".agents/skills/sbpa"
 }
 
-$Base = "https://raw.githubusercontent.com/$Repo/$Ref/skills/sbpa"
-$Tmp = "$Dest.tmp.$PID"
+$Work = Join-Path ([System.IO.Path]::GetTempPath()) ("sbpa-" + [Guid]::NewGuid().ToString("N"))
+$Zip = Join-Path $Work "sbpa.zip"
+$Extract = Join-Path $Work "extract"
+$Staged = Join-Path $Work "staged"
 $Backup = "$Dest.backup.$PID"
-
-function Fetch-File([string]$Url, [string]$OutFile) {
-  $parent = Split-Path -Parent $OutFile
-  New-Item -ItemType Directory -Force -Path $parent | Out-Null
-  Invoke-WebRequest -Uri $Url -OutFile $OutFile -UseBasicParsing
-}
+$Url = "https://github.com/$Repo/archive/$Ref.zip"
 
 try {
-  New-Item -ItemType Directory -Force -Path (Join-Path $Tmp "references") | Out-Null
+  New-Item -ItemType Directory -Force -Path $Work | Out-Null
+  Invoke-WebRequest -Uri $Url -OutFile $Zip -UseBasicParsing
+  Expand-Archive -Path $Zip -DestinationPath $Extract -Force
 
-  Fetch-File "$Base/SKILL.md" (Join-Path $Tmp "SKILL.md")
-  Fetch-File "$Base/references/behavior-model.md" (Join-Path $Tmp "references/behavior-model.md")
-  Fetch-File "$Base/references/artifacts.md" (Join-Path $Tmp "references/artifacts.md")
-  Fetch-File "$Base/references/completion.md" (Join-Path $Tmp "references/completion.md")
+  $SkillFile = Get-ChildItem -Path $Extract -Recurse -File -Filter "SKILL.md" |
+    Where-Object { $_.FullName -match '[\\/]skills[\\/]sbpa[\\/]SKILL\.md$' } |
+    Select-Object -First 1
 
-  $skill = Get-Content (Join-Path $Tmp "SKILL.md") -Raw
-  if ($skill -notmatch "(?m)^name: sbpa$") { throw "Invalid SBPA skill metadata" }
-  if ($skill -notmatch "(?m)^# SBPA") { throw "Invalid SBPA skill payload" }
+  if (-not $SkillFile) { throw "skills/sbpa/SKILL.md not found in archive" }
+
+  $Source = Split-Path -Parent $SkillFile.FullName
+  Copy-Item -Path $Source -Destination $Staged -Recurse
+
+  $Skill = Get-Content (Join-Path $Staged "SKILL.md") -Raw
+  if ($Skill -notmatch "(?m)^name: sbpa$") { throw "Invalid SBPA skill metadata" }
+  if ($Skill -notmatch "(?m)^# SBPA") { throw "Invalid SBPA skill payload" }
 
   New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Dest) | Out-Null
 
@@ -43,7 +46,7 @@ try {
   }
 
   try {
-    Move-Item $Tmp $Dest
+    Move-Item $Staged $Dest
     if (Test-Path $Backup) { Remove-Item -Recurse -Force $Backup }
   } catch {
     if ((Test-Path $Backup) -and -not (Test-Path $Dest)) {
@@ -55,5 +58,5 @@ try {
   Write-Host "SBPA installed: $Dest"
   Write-Host "Use: ask your agent to 'Use SBPA to audit this repository.'"
 } finally {
-  if (Test-Path $Tmp) { Remove-Item -Recurse -Force $Tmp }
+  if (Test-Path $Work) { Remove-Item -Recurse -Force $Work }
 }
