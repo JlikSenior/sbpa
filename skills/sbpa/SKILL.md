@@ -9,9 +9,7 @@ description: Exhaustively recover, model, compare, and audit software behavior f
 
 Recover and preserve software behavior from evidence.
 
-SBPA is domain-independent. Do not assume a language, framework, architecture, application type, interaction model, persistence model, deployment model, or business domain before inspecting evidence.
-
-The repository defines its own taxonomy.
+SBPA is domain-independent. Do not assume a language, framework, architecture, application type, interaction model, persistence model, deployment model, or business domain before inspecting evidence. The repository defines its own taxonomy.
 
 ## Governing objective
 
@@ -42,9 +40,7 @@ Never silently promote `INFERRED`, `CONFLICTED`, or `UNKNOWN` to `CONFIRMED`.
 
 Separate behavior whenever trigger, precondition, accepted input, rejected input, branch, transition, output, side effect, failure semantics, ordering, timing, concurrency, persistence, or observable result differs.
 
-One behavior record should represent one independently verifiable behavioral contract.
-
-Do not replace multiple contracts with a high-level feature statement.
+One behavior record should represent one independently verifiable behavioral contract. Do not replace multiple contracts with a high-level feature statement.
 
 ### 3. No importance filtering
 
@@ -68,6 +64,26 @@ Never claim completeness because the analysis looks thorough. Completeness is a 
 
 Do not declare analysis complete while unexplained evidence, relevant elements, meaningful branches, verification expectations, or structural coverage gaps remain unresolved.
 
+## Output language
+
+SBPA supports configurable human-readable output language without changing machine-stable audit semantics.
+
+Read `references/output-language.md` before producing or updating audit artifacts.
+
+The default is:
+
+```yaml
+output_language: auto
+technical_terms: preserve
+source_identifiers: preserve
+```
+
+`auto` follows the user's primary language. At minimum, support `zh-CN` and `en`. An explicit user language request overrides `auto` and must be persisted in `.sbpa/scope.md` for subsequent batches.
+
+Only human-readable prose is localized. Stable IDs, canonical schema keys, canonical status values, file paths, source identifiers, evidence references, error codes, protocol values, and other semantics-bearing literals must remain unchanged unless the source evidence itself changes.
+
+Changing output language must never break identity, traceability, comparison, or continuation of an existing audit.
+
 ## Project state
 
 For non-trivial work, maintain durable audit state under `.sbpa/` in the repository being analyzed.
@@ -82,7 +98,7 @@ Do not overwrite unresolved findings merely because a later pass has less contex
 
 ### Phase 0 — Scope
 
-Establish the source system, target system if any, analysis root, explicit exclusions if any, and available evidence.
+Establish the source system, target system if any, analysis root, explicit exclusions if any, available evidence, and output language.
 
 Never invent exclusions.
 
@@ -129,7 +145,7 @@ Do not fabricate values for absent dimensions. Use `N/A` only when non-applicabi
 
 Create only inventories supported by discovered evidence.
 
-Examples of possible inventory classes include state, decisions, data contracts, effects, failures, interaction surfaces, temporal semantics, concurrency semantics, configuration semantics, and verification evidence. These are discovery lenses, not assumptions that such concepts must exist.
+Possible discovery lenses include state, decisions, data contracts, effects, failures, interaction surfaces, temporal semantics, concurrency semantics, configuration semantics, and verification evidence. These are lenses, not assumptions that such concepts must exist.
 
 Extend the taxonomy if repository evidence reveals another behavior-bearing class.
 
@@ -177,9 +193,7 @@ At minimum verify:
 - requirement -> target, when a target exists
 - verification evidence -> behavior
 
-For every repository-derived inventory, also audit each meaningful member back to behavior coverage. Examples include branches, state transitions, failures, effects, interaction contracts, data contracts, configuration-dependent behavior, timing constraints, or concurrency constraints.
-
-Any broken chain creates a coverage gap.
+For every repository-derived inventory, also audit each meaningful member back to behavior coverage. Any broken chain creates a coverage gap.
 
 ### Phase 9 — Gap, Unknown, and Conflict registers
 
@@ -203,13 +217,7 @@ Whenever inspected evidence contains a construct that selects among materially d
 
 The syntax is repository-specific. Do not search only for a fixed list of language keywords.
 
-A meaningful alternative must resolve to:
-
-- an existing Behavior ID,
-- a newly created Behavior ID, or
-- `NO_BEHAVIORAL_EFFECT` with justification.
-
-Unmapped meaningful alternatives are coverage gaps.
+A meaningful alternative must resolve to an existing Behavior ID, a newly created Behavior ID, or `NO_BEHAVIORAL_EFFECT` with justification. Unmapped meaningful alternatives are coverage gaps.
 
 ## Verification rule
 
@@ -227,16 +235,7 @@ When evidence sources disagree, preserve the disagreement in the Conflict regist
 
 ## Anti-compression rule
 
-Never conceal unreviewed or unenumerated behavior behind language equivalent to:
-
-- etc.
-- and so on
-- similar cases
-- standard handling
-- usual behavior
-- remaining cases
-- miscellaneous
-- same as above
+Never conceal unreviewed or unenumerated behavior behind language equivalent to `etc.`, `and so on`, `similar cases`, `standard handling`, `usual behavior`, `remaining cases`, `miscellaneous`, or `same as above`.
 
 Enumerate the items or mark them not yet analyzed.
 
@@ -269,6 +268,8 @@ At the end of each analysis batch, report at least:
 - Open unknowns
 - Open conflicts
 - Next analysis target
+
+Render human-readable labels and prose according to `output_language`, while preserving canonical machine values.
 
 ## Final acceptance question
 
