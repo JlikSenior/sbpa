@@ -9,13 +9,13 @@ SBPA is designed for rewrites, refactors, language/framework migrations, legacy 
 macOS / Linux / WSL:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/JlikSenior/sbpa/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/JlikSenior/sbpa/main/install.sh -o /tmp/sbpa-install.sh && bash /tmp/sbpa-install.sh
 ```
 
 Windows PowerShell:
 
 ```powershell
-irm https://raw.githubusercontent.com/JlikSenior/sbpa/main/install.ps1 | iex
+$u='https://raw.githubusercontent.com/JlikSenior/sbpa/main/install.ps1'; $p=Join-Path $env:TEMP 'sbpa-install.ps1'; irm $u -OutFile $p; & $p
 ```
 
 The default installation target is:
@@ -29,17 +29,17 @@ The default installation target is:
 Install globally instead:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/JlikSenior/sbpa/main/install.sh | bash -s -- --global
+curl -fsSL https://raw.githubusercontent.com/JlikSenior/sbpa/main/install.sh -o /tmp/sbpa-install.sh && bash /tmp/sbpa-install.sh --global
 ```
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/JlikSenior/sbpa/main/install.ps1))) -Global
+$u='https://raw.githubusercontent.com/JlikSenior/sbpa/main/install.ps1'; $p=Join-Path $env:TEMP 'sbpa-install.ps1'; irm $u -OutFile $p; & $p -Global
 ```
 
 Install into a specific project:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/JlikSenior/sbpa/main/install.sh | bash -s -- --target /path/to/project
+curl -fsSL https://raw.githubusercontent.com/JlikSenior/sbpa/main/install.sh -o /tmp/sbpa-install.sh && bash /tmp/sbpa-install.sh --target /path/to/project
 ```
 
 Re-run the same command to update SBPA. The installer replaces only `.agents/skills/sbpa` and leaves the rest of the project untouched.
