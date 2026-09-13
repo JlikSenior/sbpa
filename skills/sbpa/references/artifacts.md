@@ -15,6 +15,17 @@ Record:
 - discovered evidence classes
 - traversal strategy for large repositories
 - audit start/update metadata
+- output language configuration
+
+Recommended language block:
+
+```yaml
+output_language: auto
+technical_terms: preserve
+source_identifiers: preserve
+```
+
+Apply `references/output-language.md`. Once selected, preserve the configured language across later batches unless the user explicitly changes it.
 
 Never invent exclusions.
 
@@ -137,5 +148,7 @@ Do not create conceptual inventories just because a template suggests them. Do n
 ## PRD and human-readable reports
 
 A PRD is a generated view over the behavior model. It may group behaviors for readability, but every statement that represents recovered source behavior must retain Behavior IDs.
+
+Human-readable prose follows the configured `output_language`. Canonical IDs, schema keys, status values, source identifiers, paths, and evidence references remain stable across languages.
 
 Never use the PRD as the only persistence format for recovered behavior.
