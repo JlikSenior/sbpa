@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SBPA Generated Acceptance Specification",
+  "type": "object",
+  "required": ["acceptance_id", "behavior_id", "origin", "given", "when", "then"],
+  "properties": {
+    "acceptance_id": {"type": "string", "pattern": "^A-[0-9]{6}$"},
+    "behavior_id": {"type": "string", "pattern": "^B-[0-9]{6}$"},
+    "origin": {"const": "GENERATED_VERIFICATION"},
+    "title": {"type": "string"},
+    "given": {"type": "array", "items": {"type": "string"}},
+    "when": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "then": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "source_evidence": {"type": "array", "items": {"type": "string", "pattern": "^E-[0-9]{6}$"}},
+    "verification_dimensions": {"type": "array", "items": {"type": "string"}},
+    "automation": {
+      "type": "object",
+      "properties": {
+        "status": {"enum": ["NOT_IMPLEMENTED", "IMPLEMENTED", "PARTIAL", "BLOCKED"]},
+        "location": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
